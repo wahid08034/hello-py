@@ -6,14 +6,8 @@ on:
 
 env:
   AWS_REGION: us-east-1                   # Change to your region
-<<<<<<< HEAD
-  ECR_REPOSITORY: hello-py    # Your ECR repo name
-=======
-  ECR_REPOSITORY: hello-py
+  ECR_REPOSITORY: hello-py                # Your ECR repo name
   IMAGE_TAG: latest
-
->>>>>>> a5bf89762c491779cf75a38f6aac003faf020e81
-
 
 jobs:
   deploy:
@@ -49,13 +43,13 @@ jobs:
         docker build -t ${{ env.ECR_REPOSITORY }} .
         
         # Tag the image
-        docker tag ${{ env.ECR_REPOSITORY }}:latest ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+        docker tag ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         
         # Push the image
-        docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+        docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         
         # Output the image URI for use in later steps
-        echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest" >> $GITHUB_OUTPUT
+        echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+
     - name: ✅ Done
       run: echo "✅ Docker image pushed to ECR successfully!"
-      # ✅ Final success message in GitHub Actions logs
