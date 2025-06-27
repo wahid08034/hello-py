@@ -6,11 +6,8 @@ on:
 
 env:
   AWS_REGION: us-east-1                   # Change to your region
-  ECR_REPOSITORY: hello-world-python      # Your ECR repo name
-  ECS_SERVICE: hello-world-service        # Your ECS service name
-  ECS_CLUSTER: hello-world-cluster        # Your ECS cluster name
-  ECS_TASK_DEFINITION: .aws/task-def.json # Path to your task definition
-  CONTAINER_NAME: hello-world-container   # Your container name
+  ECR_REPOSITORY: hello-py    # Your ECR repo name
+
 
 jobs:
   deploy:
@@ -32,6 +29,12 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Create ECR repository if it doesn't exist
+      run: |
+        aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} || \
+        aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }}
+        # Check if the ECR repository exists; if not, create it
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
