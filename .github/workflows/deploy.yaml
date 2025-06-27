@@ -6,7 +6,13 @@ on:
 
 env:
   AWS_REGION: us-east-1                   # Change to your region
+<<<<<<< HEAD
   ECR_REPOSITORY: hello-py    # Your ECR repo name
+=======
+  ECR_REPOSITORY: hello-py
+  IMAGE_TAG: latest
+
+>>>>>>> a5bf89762c491779cf75a38f6aac003faf020e81
 
 
 jobs:
