@@ -1,0 +1,52 @@
+name: Build and Deploy to AWS ECS
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-1                   # Change to your region
+  ECR_REPOSITORY: hello-world-python      # Your ECR repo name
+  ECS_SERVICE: hello-world-service        # Your ECS service name
+  ECS_CLUSTER: hello-world-cluster        # Your ECS cluster name
+  ECS_TASK_DEFINITION: .aws/task-def.json # Path to your task definition
+  CONTAINER_NAME: hello-world-container   # Your container name
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      run: |
+        # Build the Docker image
+        docker build -t ${{ env.ECR_REPOSITORY }} .
+        
+        # Tag the image
+        docker tag ${{ env.ECR_REPOSITORY }}:latest ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+        
+        # Push the image
+        docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+        
+        # Output the image URI for use in later steps
+        echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest" >> $GITHUB_OUTPUT
+    - name: ✅ Done
+      run: echo "✅ Docker image pushed to ECR successfully!"
+      # ✅ Final success message in GitHub Actions logs
